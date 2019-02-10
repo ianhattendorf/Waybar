@@ -9,6 +9,10 @@ project(
     ],
 )
 
+if get_option('buildtype').startswith('debug')
+  add_project_arguments('-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG', language: 'cpp')
+endif
+
 cpp_args = []
 cpp_link_args = []
 
@@ -43,6 +47,7 @@ add_global_link_arguments(cpp_link_args, language : 'cpp')
 thread_dep = dependency('threads')
 libinput = dependency('libinput')
 fmt = dependency('fmt', version : ['>=5.2.1'], fallback : ['fmt', 'fmt_dep'])
+spdlog = dependency('spdlog', version: ['>=1.3.0'], fallback: ['spdlog', 'spdlog_dep'])
 wayland_client = dependency('wayland-client')
 wayland_cursor = dependency('wayland-cursor')
 wayland_protos = dependency('wayland-protocols')
@@ -110,6 +115,7 @@ executable(
         client_protos,
         wayland_client,
         fmt,
+        spdlog,
         sigcpp,
         jsoncpp,
         libinput,
