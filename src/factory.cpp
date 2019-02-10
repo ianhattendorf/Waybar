@@ -48,6 +48,9 @@ waybar::IModule* waybar::Factory::makeModule(const std::string &name) const
       return new waybar::modules::Pulseaudio(id, config_[name]);
     }
     #endif
+    if (ref == "backlight") {
+      return new waybar::modules::Backlight(id, config_[name]);
+    }
     if (ref == "disk") {
       return new waybar::modules::Disk(id, config_[name]);
     }

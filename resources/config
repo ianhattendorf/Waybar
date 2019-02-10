@@ -43,6 +43,11 @@
         "paths": ["/"]
         // "format": "[{path}]: {used} / {total}"
     },
+    "backlight": {
+        "format": "{percent}% {icon}",
+        "format-icons": ["", ""]
+        // "device": "acpi_video1"
+    },
     "battery": {
         "states": {
             // "good": 95,

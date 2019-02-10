@@ -60,6 +60,7 @@ sigcpp = dependency('sigc++-2.0')
 libnl = dependency('libnl-3.0', required: get_option('libnl'))
 libnlgen = dependency('libnl-genl-3.0', required: get_option('libnl'))
 libpulse = dependency('libpulse', required: get_option('pulseaudio'))
+libudev = dependency('libudev')
 
 src_files = files(
     'src/factory.cpp',
@@ -70,6 +71,7 @@ src_files = files(
     'src/modules/custom.cpp',
     'src/modules/cpu.cpp',
     'src/modules/disk.cpp',
+    'src/modules/backlight.cpp',
     'src/main.cpp',
     'src/bar.cpp',
     'src/client.cpp'
@@ -126,7 +128,8 @@ executable(
         giounix,
         libnl,
         libnlgen,
-        libpulse
+        libpulse,
+        libudev
     ],
     include_directories: [include_directories('include')],
     install: true,
