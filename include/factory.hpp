@@ -20,6 +20,7 @@
 #include "modules/pulseaudio.hpp"
 #endif
 #include "modules/custom.hpp"
+#include "modules/disk.hpp"
 
 namespace waybar {
 

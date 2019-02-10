@@ -1,10 +1,5 @@
 #pragma once
 
-#ifdef FILESYSTEM_EXPERIMENTAL
-#include <experimental/filesystem>
-#else
-#include <filesystem>
-#endif
 #include <fstream>
 #include <iostream>
 #include <fmt/format.h>
@@ -12,14 +7,9 @@
 #include <algorithm>
 #include "util/sleeper_thread.hpp"
 #include "ALabel.hpp"
+#include "filesystem.hpp"
 
 namespace waybar::modules {
-
-#ifdef FILESYSTEM_EXPERIMENTAL
-namespace fs = std::experimental::filesystem;
-#else
-namespace fs = std::filesystem;
-#endif
 
 class Battery : public ALabel {
   public:
