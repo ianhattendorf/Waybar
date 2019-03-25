@@ -1,5 +1,7 @@
 #include "modules/sway/ipc/client.hpp"
 
+#include "util/bit_cast.hpp"
+
 waybar::modules::sway::Ipc::Ipc()
 {
   const std::string& socketPath = getSocketPath();
@@ -65,7 +67,6 @@ struct waybar::modules::sway::Ipc::ipc_response
 {
   std::string header;
   header.reserve(ipc_header_size_);
-  auto data32 = reinterpret_cast<uint32_t *>(header.data() + ipc_magic_.size());
   size_t total = 0;
 
   while (total < ipc_header_size_) {
@@ -83,16 +84,19 @@ struct waybar::modules::sway::Ipc::ipc_response
 
   total = 0;
   std::string payload;
-  payload.reserve(data32[0] + 1);
-  while (total < data32[0]) {
-    auto res = ::recv(fd, payload.data() + total, data32[0] - total, 0);
+  const char *const data32_begin = header.data() + ipc_magic_.size();
+  const auto size = util::bit_cast_from_ptr<uint32_t>(data32_begin);
+  const auto type = util::bit_cast_from_ptr<uint32_t>(data32_begin + sizeof(uint32_t));
+  payload.reserve(size + 1);
+  while (total < size) {
+    const auto res = ::recv(fd, payload.data() + total, size - total, 0);
     if (res < 0) {
       throw std::runtime_error("Unable to receive IPC payload");
     }
     total += res;
   }
-  payload[data32[0]] = 0;
-  return { data32[0], data32[1], &payload.front() };
+  payload[size] = 0;
+  return { size, type, &payload.front() };
 }
 
 struct waybar::modules::sway::Ipc::ipc_response
@@ -101,10 +105,11 @@ struct waybar::modules::sway::Ipc::ipc_response
 {
   std::string header;
   header.reserve(ipc_header_size_);
-  auto data32 = reinterpret_cast<uint32_t *>(header.data() + ipc_magic_.size());
-  memcpy(header.data(), ipc_magic_.c_str(), ipc_magic_.size());
-  data32[0] = payload.size();
-  data32[1] = type;
+  std::memcpy(header.data(), ipc_magic_.c_str(), ipc_magic_.size());
+  char *const data32_begin = header.data() + ipc_magic_.size();
+  const uint32_t payload_size = payload.size();
+  std::memcpy(data32_begin, &payload_size, sizeof(uint32_t));
+  std::memcpy(data32_begin + sizeof(uint32_t), &type, sizeof(uint32_t));
 
   if (::send(fd, header.data(), ipc_header_size_, 0) == -1) {
     throw std::runtime_error("Unable to send IPC header");
